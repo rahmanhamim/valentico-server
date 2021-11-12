@@ -27,6 +27,7 @@ async function run() {
   const productsCollection = database.collection("products");
   const orderCollection = database.collection("orders");
   const usersCollection = database.collection("users");
+  const reviewsCollection = database.collection("reviews");
 
   // GET API
   app.get("/products", async (req, res) => {
@@ -58,6 +59,12 @@ async function run() {
    const orders = await cursor.toArray();
    res.send(orders);
   });
+  // GET API ALL REVIEWS
+  app.get("/reviews", async (req, res) => {
+   const cursor = reviewsCollection.find({});
+   const reviews = await cursor.toArray();
+   res.send(reviews);
+  });
 
   // POST API ORDERS
   app.post("/orders", async (req, res) => {
@@ -73,6 +80,20 @@ async function run() {
    res.json(result);
   });
 
+  // POST API ORDERS
+  app.post("/products", async (req, res) => {
+   const product = req.body;
+   const result = await productsCollection.insertOne(product);
+   res.json(result);
+  });
+
+  // POST API REVIEWS
+  app.post("/reviews", async (req, res) => {
+   const product = req.body;
+   const result = await reviewsCollection.insertOne(product);
+   res.json(result);
+  });
+
   // PUT API TO FOR GOOGLE LOGIN
   // app.put("/users", async (req, res) => {
   //  const user = req.body;
@@ -82,16 +103,6 @@ async function run() {
   //  const result = await usersCollection.updateOne(filter, updateUser, options);
   //  res.json(result);
   // });
-
-  // PUT API TO MAKE ADMIN
-  app.put("/users/admin", async (req, res) => {
-   const user = req.body;
-   console.log("put", user);
-   const filter = { email: user.email };
-   const updateUser = { $set: { role: "admin" } };
-   const result = await usersCollection.updateOne(filter, updateUser);
-   res.json(result);
-  });
 
   //  GET API USERS
   app.get("/users/:email", async (req, res) => {
@@ -103,6 +114,41 @@ async function run() {
     isAdmin = true;
    }
    res.json({ admin: isAdmin });
+  });
+
+  // DELETE SINGLE ORDER API
+  app.delete("/orders/:id", async (req, res) => {
+   const id = req.params.id;
+   const query = { _id: ObjectId(id) };
+   const result = await orderCollection.deleteOne(query);
+   res.json(result);
+  });
+
+  // PUT API TO MAKE ADMIN
+  app.put("/users/admin", async (req, res) => {
+   const user = req.body;
+   console.log("put", user);
+   const filter = { email: user.email };
+   const updateUser = { $set: { role: "admin" } };
+   const result = await usersCollection.updateOne(filter, updateUser);
+   res.json(result);
+  });
+
+  // PUT API UPDATE STATUS
+  app.put("/orders/:id", (req, res) => {
+   const id = req.params.id;
+   console.log(id);
+   const updatedInfo = req.body;
+   orderCollection
+    .updateOne(
+     { _id: ObjectId(id) },
+     {
+      $set: {
+       status: updatedInfo.status,
+      },
+     }
+    )
+    .then((result) => res.send(result));
   });
 
   // -----------------
