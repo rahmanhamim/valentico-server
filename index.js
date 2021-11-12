@@ -26,6 +26,7 @@ async function run() {
   const database = client.db("valentico");
   const productsCollection = database.collection("products");
   const orderCollection = database.collection("orders");
+  const usersCollection = database.collection("users");
 
   // GET API
   app.get("/products", async (req, res) => {
@@ -42,13 +43,29 @@ async function run() {
    res.send(product);
   });
 
+  // GET API MY ORDERS
+  app.get("/myorders", async (req, res) => {
+   const email = req.query.email;
+   const query = { email: email };
+   const cursor = orderCollection.find(query);
+   const orders = await cursor.toArray();
+   res.json(orders);
+  });
+
   // POST API ORDERS
   app.post("/orders", async (req, res) => {
    const order = req.body;
    const result = await orderCollection.insertOne(order);
-   console.log(result);
    res.json(result);
   });
+
+  // POST API USERS DATA
+  app.post("/users", async (req, res) => {
+   const user = req.body;
+   const result = await usersCollection.insertOne(user);
+   res.json(result);
+  });
+
   // -----------------
   // -----------------
  } finally {
