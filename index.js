@@ -52,6 +52,13 @@ async function run() {
    res.json(orders);
   });
 
+  // GET API ALL ORDERS
+  app.get("/orders", async (req, res) => {
+   const cursor = orderCollection.find({});
+   const orders = await cursor.toArray();
+   res.send(orders);
+  });
+
   // POST API ORDERS
   app.post("/orders", async (req, res) => {
    const order = req.body;
@@ -64,6 +71,38 @@ async function run() {
    const user = req.body;
    const result = await usersCollection.insertOne(user);
    res.json(result);
+  });
+
+  // PUT API TO FOR GOOGLE LOGIN
+  // app.put("/users", async (req, res) => {
+  //  const user = req.body;
+  //  const filter = { email: user.email };
+  //  const options = { upsert: true };
+  //  const updateUser = { $set: user };
+  //  const result = await usersCollection.updateOne(filter, updateUser, options);
+  //  res.json(result);
+  // });
+
+  // PUT API TO MAKE ADMIN
+  app.put("/users/admin", async (req, res) => {
+   const user = req.body;
+   console.log("put", user);
+   const filter = { email: user.email };
+   const updateUser = { $set: { role: "admin" } };
+   const result = await usersCollection.updateOne(filter, updateUser);
+   res.json(result);
+  });
+
+  //  GET API USERS
+  app.get("/users/:email", async (req, res) => {
+   const email = req.params.email;
+   const query = { email: email };
+   const user = await usersCollection.findOne(query);
+   let isAdmin = false;
+   if (user?.role === "admin") {
+    isAdmin = true;
+   }
+   res.json({ admin: isAdmin });
   });
 
   // -----------------
