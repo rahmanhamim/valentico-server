@@ -124,10 +124,18 @@ async function run() {
    res.json(result);
   });
 
+  // DELETE PRODUCT API
+  app.delete("/products/:id", async (req, res) => {
+   const id = req.params.id;
+   const query = { _id: ObjectId(id) };
+   const result = await productsCollection.deleteOne(query);
+   res.json(result);
+  });
+
   // PUT API TO MAKE ADMIN
   app.put("/users/admin", async (req, res) => {
    const user = req.body;
-   console.log("put", user);
+   // console.log("put", user);
    const filter = { email: user.email };
    const updateUser = { $set: { role: "admin" } };
    const result = await usersCollection.updateOne(filter, updateUser);
@@ -137,7 +145,7 @@ async function run() {
   // PUT API UPDATE STATUS
   app.put("/orders/:id", (req, res) => {
    const id = req.params.id;
-   console.log(id);
+   // console.log(id);
    const updatedInfo = req.body;
    orderCollection
     .updateOne(
